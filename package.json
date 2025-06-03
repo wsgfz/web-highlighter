@@ -56,7 +56,6 @@
     "@types/sinon": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
-    "@vitejs/plugin-legacy": "^6.1.1",
     "better-opn": "^1.0.0",
     "chai": "^4.2.0",
     "chalk": "^2.4.2",
