@@ -96,11 +96,11 @@ export default class Painter {
                         detail: s,
                     });
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 // Error handling for robust restore failures
                 eventEmitter.emit(INTERNAL_ERROR_EVENT, {
                     type: ERROR.HIGHLIGHT_SOURCE_RECREATE,
-                    error: error,
+                    error,
                     detail: s,
                 });
             }

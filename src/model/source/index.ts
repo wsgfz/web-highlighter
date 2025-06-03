@@ -34,17 +34,17 @@ class HighlightSource {
     }
 
     deSerialize(
-        $root: Document | HTMLElement, 
+        $root: Document | HTMLElement,
         hooks: HookMap,
-        robustOptions?: HighlighterOptions['robustRestore']
+        robustOptions?: HighlighterOptions['robustRestore'],
     ): HighlightRange {
         const queryResult = queryElementNode(this, $root, robustOptions);
         const { start, end, startInfo, endInfo } = queryResult;
         const robustMode = robustOptions?.enabled || false;
-        
+
         let finalStartInfo: DomNode;
         let finalEndInfo: DomNode;
-        
+
         // If we have precise DOM node info, use it directly
         if (startInfo && endInfo) {
             finalStartInfo = startInfo;
