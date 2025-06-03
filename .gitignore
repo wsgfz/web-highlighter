@@ -8,3 +8,4 @@ package-lock.json
 typings
 .nyc_output
 coverage
+.history

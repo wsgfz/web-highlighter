@@ -8,12 +8,13 @@ convert();
 const config = require('../config/webpack.config.dev.js');
 const serverConfig = require('../config/server.config.js');
 
-WebpackDevServer.addDevServerEntrypoints(config, serverConfig);
+// 移除已废弃的 addDevServerEntrypoints 方法
+// WebpackDevServer.addDevServerEntrypoints(config, serverConfig);
 const compiler = webpack(config);
 const {port, host} = serverConfig;
 
-const devServer = new WebpackDevServer(compiler, serverConfig);
-devServer.listen(port, host, err => {
+const devServer = new WebpackDevServer(serverConfig, compiler);
+devServer.startCallback(err => {
     if (err) {
         return console.log(err);
     }
