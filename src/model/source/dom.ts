@@ -84,21 +84,39 @@ const getSiblingLevelNodes = (
 ): Node[] => {
     const allNodes = $root.getElementsByTagName(tagName);
     const nodes: Node[] = [];
+    const addedIndices = new Set<number>(); // Prevent duplicate node additions
 
-    // Expand levels upward and downward
+    // 1. Expand level nodes (search upward and downward)
     for (let level = 1; level <= levels; level++) {
         // Search upward
         const upperIndex = originalIndex - level;
-
-        if (upperIndex >= 0 && upperIndex < allNodes.length) {
+        if (upperIndex >= 0 && upperIndex < allNodes.length && !addedIndices.has(upperIndex)) {
             nodes.push(allNodes[upperIndex]);
+            addedIndices.add(upperIndex);
         }
 
         // Search downward
         const lowerIndex = originalIndex + level;
-
-        if (lowerIndex >= 0 && lowerIndex < allNodes.length) {
+        if (lowerIndex >= 0 && lowerIndex < allNodes.length && !addedIndices.has(lowerIndex)) {
             nodes.push(allNodes[lowerIndex]);
+            addedIndices.add(lowerIndex);
+        }
+    }
+
+    // 2. Add adjacent node search (consecutive neighboring nodes)
+    for (let i = 1; i <= levels; i++) {
+        // Previous adjacent nodes
+        const prevIndex = originalIndex - i;
+        if (prevIndex >= 0 && prevIndex < allNodes.length && !addedIndices.has(prevIndex)) {
+            nodes.push(allNodes[prevIndex]);
+            addedIndices.add(prevIndex);
+        }
+
+        // Next adjacent nodes
+        const nextIndex = originalIndex + i;
+        if (nextIndex >= 0 && nextIndex < allNodes.length && !addedIndices.has(nextIndex)) {
+            nodes.push(allNodes[nextIndex]);
+            addedIndices.add(nextIndex);
         }
     }
 
