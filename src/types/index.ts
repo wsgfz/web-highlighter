@@ -10,6 +10,11 @@ export interface HighlighterOptions {
     style?: {
         className?: string[] | string;
     };
+    robustRestore?: {
+        enabled?: boolean;
+        searchThreshold?: number;
+        maxLevels?: number;
+    };
 }
 
 export interface PainterOptions {

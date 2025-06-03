@@ -4,7 +4,7 @@
  * Also it has the ability for persistence.
  */
 
-import type { DomMeta, HookMap, DomNode } from '@src/types';
+import type { DomMeta, HookMap, DomNode, HighlighterOptions } from '@src/types';
 import HighlightRange from '@src/model/range/index';
 import { queryElementNode, getTextChildByOffset } from '@src/model/source/dom';
 
@@ -33,19 +33,36 @@ class HighlightSource {
         }
     }
 
-    deSerialize($root: Document | HTMLElement, hooks: HookMap): HighlightRange {
-        const { start, end } = queryElementNode(this, $root);
-        let startInfo = getTextChildByOffset(start, this.startMeta.textOffset);
-        let endInfo = getTextChildByOffset(end, this.endMeta.textOffset);
-
-        if (!hooks.Serialize.Restore.isEmpty()) {
-            const res: DomNode[] = hooks.Serialize.Restore.call(this, startInfo, endInfo) || [];
-
-            startInfo = res[0] || startInfo;
-            endInfo = res[1] || endInfo;
+    deSerialize(
+        $root: Document | HTMLElement, 
+        hooks: HookMap,
+        robustOptions?: HighlighterOptions['robustRestore']
+    ): HighlightRange {
+        const queryResult = queryElementNode(this, $root, robustOptions);
+        const { start, end, startInfo, endInfo } = queryResult;
+        const robustMode = robustOptions?.enabled || false;
+        
+        let finalStartInfo: DomNode;
+        let finalEndInfo: DomNode;
+        
+        // If we have precise DOM node info, use it directly
+        if (startInfo && endInfo) {
+            finalStartInfo = startInfo;
+            finalEndInfo = endInfo;
+        } else {
+            // Fallback to traditional method
+            finalStartInfo = getTextChildByOffset(start, this.startMeta.textOffset, robustMode);
+            finalEndInfo = getTextChildByOffset(end, this.endMeta.textOffset, robustMode);
         }
 
-        const range = new HighlightRange(startInfo, endInfo, this.text, this.id, true);
+        if (!hooks.Serialize.Restore.isEmpty()) {
+            const res: DomNode[] = hooks.Serialize.Restore.call(this, finalStartInfo, finalEndInfo) || [];
+
+            finalStartInfo = res[0] || finalStartInfo;
+            finalEndInfo = res[1] || finalEndInfo;
+        }
+
+        const range = new HighlightRange(finalStartInfo, finalEndInfo, this.text, this.id, true);
 
         return range;
     }

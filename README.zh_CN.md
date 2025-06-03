@@ -159,6 +159,11 @@ const highlighter = new Highlighter([opts])
     wrapTag: 'span',
     style: {
         className: 'highlight-mengshou-wrap'
+    },
+    robustRestore: {
+        enabled: false,
+        searchThreshold: 50,
+        maxLevels: 3
     }
 }
 ```
@@ -172,6 +177,7 @@ const highlighter = new Highlighter([opts])
 | wrapTag | `string` | 用于包裹高亮文本的 HTML 标签名 | 否 | `span` |
 | verbose | `boolean` | 是否需要输出警告和错误信息 | 否 | `false` |
 | style | `Object` | 用于控制高亮区域的样式 | 否 | 详见下方 |
+| robustRestore | `Object` | 当页面内容发生变化时的健壮高亮恢复配置 | 否 | 详见下方 |
 
 `style` 属性配置:
 
@@ -184,6 +190,33 @@ const highlighter = new Highlighter([opts])
 ```JavaScript
 var highlighter = new Highlighter({
     exceptSelectors: ['h1', '.title']
+});
+
+```
+`robustRestore` 属性配置:
+
+| 参数名 | 类型 | 描述 | 是否必须 | 默认值 |
+|---|---|---|---|---|
+| enabled | `boolean` | 是否启用健壮恢复功能 | 否 | `false` |
+| searchThreshold | `number` | 当内容发生变化时，在原始偏移量周围搜索的字符范围 | 否 | `50` |
+| maxLevels | `number` | 当原始节点失败时，在相邻节点中搜索的最大层级数 | 否 | `3` |
+
+`robustRestore` 健壮恢复功能用于在页面内容发生变化时仍能准确恢复高亮。启用后，它采用多步骤搜索策略：
+
+1. **原始位置匹配**：首先尝试在精确的原始位置查找文本
+2. **范围搜索**：如果精确匹配失败，在原始偏移量周围 `searchThreshold` 字符范围内搜索
+3. **相邻层级搜索**：如果仍未找到，在 `maxLevels` 层级的相邻节点中使用相同的范围搜索
+4. **优雅降级**：如果所有搜索都失败，记录失败但不抛出错误，继续正常运行
+
+针对动态内容页面的使用示例：
+
+```JavaScript
+const highlighter = new Highlighter({
+    robustRestore: {
+        enabled: true,
+        searchThreshold: 100,  // 在100个字符范围内搜索
+        maxLevels: 5          // 搜索最多5层相邻节点
+    }
 });
 ```
 

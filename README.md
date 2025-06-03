@@ -160,6 +160,11 @@ Create a new `highlighter` instance.
     wrapTag: 'span',
     style: {
         className: 'highlight-mengshou-wrap'
+    },
+    robustRestore: {
+        enabled: false,
+        searchThreshold: 50,
+        maxLevels: 3
     }
 }
 ```
@@ -173,6 +178,7 @@ All options:
 | wrapTag | `string` | the html tag used to wrap highlighted texts | No | `span` |
 | verbose | `boolean` | dose it need to output (print) some warning and error message | No | `false` |
 | style | `Object` | control highlighted areas style | No | details below |
+| robustRestore | `Object` | configuration for robust highlight restoration when page content changes | No | details below |
 
 `style` field options:
 
@@ -185,6 +191,33 @@ All options:
 ```JavaScript
 var highlighter = new Highlighter({
     exceptSelectors: ['h1', '.title']
+});
+
+```
+`robustRestore` field options:
+
+| name | type | description | required | default |
+|---|---|---|---|---|
+| enabled | `boolean` | whether to enable robust restoration | No | `false` |
+| searchThreshold | `number` | search range in characters around the original offset when content changes | No | `50` |
+| maxLevels | `number` | maximum levels to search in sibling nodes when original node fails | No | `3` |
+
+The `robustRestore` feature helps restore highlights when page content has changed. When enabled, it uses a multi-step approach:
+
+1. **Original Position Match**: First tries to find the text at the exact original position
+2. **Range Search**: If exact match fails, searches within `searchThreshold` characters around the original offset
+3. **Sibling Level Search**: If still not found, searches in `maxLevels` levels of sibling nodes using the same range search
+4. **Graceful Fallback**: If all searches fail, logs the failure but continues without errors
+
+Example usage for pages with dynamic content:
+
+```JavaScript
+const highlighter = new Highlighter({
+    robustRestore: {
+        enabled: true,
+        searchThreshold: 100,  // Search within 100 characters
+        maxLevels: 5          // Search up to 5 levels of sibling nodes
+    }
 });
 ```
 

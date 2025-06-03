@@ -5,7 +5,7 @@
  */
 
 import type HighlightRange from '@src/model/range';
-import type { PainterOptions, HookMap } from '@src/types';
+import type { PainterOptions, HookMap, HighlighterOptions } from '@src/types';
 import HighlightSource from '@src/model/source';
 import { wrapHighlight, getSelectedNodes, normalizeSiblingText } from '@src/painter/dom';
 import { getHighlightsByRoot, forEach, addClass, removeAllClass } from '@src/util/dom';
@@ -29,7 +29,9 @@ export default class Painter {
 
     hooks: HookMap;
 
-    constructor(options: PainterOptions, hooks: HookMap) {
+    robustOptions?: HighlighterOptions['robustRestore'];
+
+    constructor(options: PainterOptions, hooks: HookMap, robustOptions?: HighlighterOptions['robustRestore']) {
         this.options = {
             $root: options.$root,
             wrapTag: options.wrapTag,
@@ -37,6 +39,7 @@ export default class Painter {
             className: options.className,
         };
         this.hooks = hooks;
+        this.robustOptions = robustOptions;
 
         initDefaultStylesheet();
     }
@@ -81,14 +84,23 @@ export default class Painter {
                 return;
             }
 
-            const range = s.deSerialize(this.options.$root, this.hooks);
-            const $nodes = this.highlightRange(range);
+            try {
+                const range = s.deSerialize(this.options.$root, this.hooks, this.robustOptions);
+                const $nodes = this.highlightRange(range);
 
-            if ($nodes.length > 0) {
-                renderedSources.push(s);
-            } else {
+                if ($nodes.length > 0) {
+                    renderedSources.push(s);
+                } else {
+                    eventEmitter.emit(INTERNAL_ERROR_EVENT, {
+                        type: ERROR.HIGHLIGHT_SOURCE_NONE_RENDER,
+                        detail: s,
+                    });
+                }
+            } catch (error) {
+                // Error handling for robust restore failures
                 eventEmitter.emit(INTERNAL_ERROR_EVENT, {
-                    type: ERROR.HIGHLIGHT_SOURCE_NONE_RENDER,
+                    type: ERROR.HIGHLIGHT_SOURCE_RECREATE,
+                    error: error,
                     detail: s,
                 });
             }

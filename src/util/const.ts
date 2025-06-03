@@ -29,6 +29,11 @@ export const getDefaultOptions = () => ({
     style: {
         className: 'highlight-mengshou-wrap',
     },
+    robustRestore: {
+        enabled: false,
+        searchThreshold: 50,
+        maxLevels: 3,
+    },
 });
 
 export const getStylesheet = () => `

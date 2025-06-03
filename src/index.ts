@@ -117,6 +117,7 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
                 exceptSelectors: this.options.exceptSelectors,
             },
             this.hooks,
+            this.options.robustRestore,
         );
     };
 
