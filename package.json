@@ -2,9 +2,16 @@
   "name": "web-highlighter",
   "version": "0.7.4",
   "description": "✨A no-runtime dependency lib for text highlighting & persistence on any website ✨🖍️",
-  "main": "dist/web-highlighter.min.js",
+  "main": "dist/web-highlighter.umd.js",
   "types": "dist/index.d.ts",
-  "browser": "dist/web-highlighter.min.js",
+  "browser": "dist/web-highlighter.umd.js",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "README.zh_CN.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "lint": "eslint \"src/**/*.ts\" --fix",
     "test": "mocha -r ts-node/register -r tsconfig-paths/register test/**.spec.ts",
@@ -15,7 +22,7 @@
     "build-example": "vite build --mode development",
     "static": "run-p dev serve",
     "start": "vite --config vite.config.dev.js",
-    "build:types": "tscpaths -p tsconfig.json -s ./src -o ./dist",
+    "build:types": "tsc --emitDeclarationOnly && tscpaths -p tsconfig.json -s ./src -o ./dist",
     "build:code": "vite build",
     "build": "run-s build:code build:types",
     "prepublishOnly": "run-s lint build test",
